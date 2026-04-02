@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tanium Exclusion Creator</title>
+<style>
+  :root {
+    --bg: #f5f6fa;
+    --surface: #ffffff;
+    --border: #d1d5db;
+    --text: #1f2937;
+    --text-muted: #6b7280;
+    --primary: #b71c1c;
+    --primary-hover: #d32f2f;
+    --primary-text: #ffffff;
+    --accent: #e8eaf6;
+    --disabled-bg: #e5e7eb;
+    --disabled-text: #9ca3af;
+    --success: #16a34a;
+    --error: #dc2626;
+    --shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 20px;
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  header {
+    background: var(--primary);
+    color: var(--primary-text);
+    padding: 20px 28px;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  header h1 {
+    font-size: 22px;
+    font-weight: 600;
+  }
+
+  header .subtitle {
+    font-size: 13px;
+    opacity: 0.85;
+  }
+
+  .logo {
+    width: 36px;
+    height: 36px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  main {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    padding: 24px 28px;
+  }
+
+  .section {
+    margin-bottom: 24px;
+  }
+
+  .section-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .section-label .badge {
+    font-size: 11px;
+    font-weight: 500;
+    background: var(--accent);
+    color: var(--primary);
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  .checkbox-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 16px;
+  }
+
+  .checkbox-grid label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 0;
+    min-width: 170px;
+  }
+
+  .checkbox-grid label.disabled {
+    color: var(--disabled-text);
+    cursor: not-allowed;
+  }
+
+  .checkbox-grid label.disabled input {
+    accent-color: var(--disabled-text);
+  }
+
+  .radio-group {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 0;
+  }
+
+  .custom-path-input {
+    margin-top: 8px;
+    display: none;
+  }
+
+  .custom-path-input.visible {
+    display: block;
+  }
+
+  .custom-path-input input {
+    width: 100%;
+    max-width: 500px;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: 'Consolas', 'Monaco', monospace;
+  }
+
+  .custom-path-input input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(183,28,28,0.15);
+  }
+
+  .module-section {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    transition: opacity 0.2s;
+  }
+
+  .module-section.disabled {
+    opacity: 0.45;
+    pointer-events: none;
+  }
+
+  .module-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .module-actions button {
+    font-size: 12px;
+    padding: 3px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface);
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+
+  .module-actions button:hover {
+    background: var(--accent);
+    color: var(--primary);
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: var(--primary-text);
+    border: none;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-primary:disabled {
+    background: var(--disabled-bg);
+    color: var(--disabled-text);
+    cursor: not-allowed;
+  }
+
+  .results-section {
+    display: none;
+    margin-top: 24px;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+  }
+
+  .results-section.visible { display: block; }
+
+  .results-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .results-actions button {
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: var(--surface);
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .results-actions button:hover {
+    background: var(--accent);
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+
+  .results-actions button.copied {
+    background: var(--success);
+    color: white;
+    border-color: var(--success);
+  }
+
+  .results-display {
+    background: #f8f9fa;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+    max-height: 500px;
+    overflow-y: auto;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 13px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    line-height: 1.6;
+  }
+
+  .results-display .group-header {
+    color: var(--primary);
+    font-weight: 700;
+    margin-top: 12px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  .results-display .group-header:first-child { margin-top: 0; }
+
+  .results-display .exclusion-line {
+    color: var(--text);
+    padding-left: 8px;
+  }
+
+  .results-count {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  .loading-overlay {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+  }
+
+  .loading-overlay .spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 12px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-box {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    color: var(--error);
+    padding: 16px;
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  .error-box button {
+    margin-top: 10px;
+    padding: 6px 16px;
+    background: var(--error);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .error-box a {
+    color: var(--error);
+    text-decoration: underline;
+  }
+
+  .hidden { display: none; }
+
+  @media (max-width: 640px) {
+    body { padding: 10px; }
+    header { padding: 16px; }
+    main { padding: 16px; }
+    .checkbox-grid label { min-width: 140px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="logo">T</div>
+    <div>
+      <h1>Tanium Exclusion Creator</h1>
+      <div class="subtitle">Generate security exclusion lists for endpoint protection software</div>
+    </div>
+  </header>
+  <main>
+    <!-- Loading / Error State -->
+    <div id="loading" class="loading-overlay">
+      <div class="spinner"></div>
+      <div>Loading exclusion data from Tanium documentation...</div>
+    </div>
+
+    <div id="error" class="error-box hidden">
+      <div>Failed to load exclusion data.</div>
+      <div style="margin-top:6px;font-size:13px;">You can view the source directly at
+        <a href="https://help.tanium.com/bundle/ug_client_cloud/page/client/security_exclusions.html" target="_blank">Tanium Help</a>.
+      </div>
+      <button onclick="loadData()">Retry</button>
+    </div>
+
+    <div id="app" class="hidden">
+      <!-- OS Selection -->
+      <div class="section">
+        <div class="section-label">Operating System</div>
+        <div class="checkbox-grid" id="os-selection">
+          <label><input type="checkbox" name="os" value="win64"> Windows (64-bit)</label>
+          <label><input type="checkbox" name="os" value="win32"> Windows (32-bit)</label>
+          <label><input type="checkbox" name="os" value="macos"> macOS</label>
+          <label><input type="checkbox" name="os" value="linux"> Linux</label>
+          <label><input type="checkbox" name="os" value="solaris"> Solaris</label>
+          <label><input type="checkbox" name="os" value="aix"> AIX</label>
+        </div>
+      </div>
+
+      <!-- Tanium Client Directory -->
+      <div class="section">
+        <div class="section-label">Tanium Client Directory</div>
+        <div class="radio-group">
+          <label><input type="radio" name="clientDir" value="default" checked onchange="toggleCustomPath()"> Default</label>
+          <label><input type="radio" name="clientDir" value="custom" onchange="toggleCustomPath()"> Custom</label>
+        </div>
+        <div id="custom-path" class="custom-path-input">
+          <input type="text" id="custom-path-value" placeholder="e.g. D:\Tanium\Client or /opt/custom/TaniumClient">
+        </div>
+      </div>
+
+      <!-- Exclusion Mode -->
+      <div class="section">
+        <div class="section-label">Exclusion Mode</div>
+        <div class="radio-group">
+          <label><input type="radio" name="mode" value="folder" onchange="toggleMode()"> Folder Level Exclusions Only</label>
+          <label><input type="radio" name="mode" value="full" checked onchange="toggleMode()"> Include Process/File Exclusions</label>
+        </div>
+      </div>
+
+      <!-- Module Selection -->
+      <div class="section">
+        <div class="section-label">
+          Module Selection
+          <span class="badge" id="module-count-badge"></span>
+        </div>
+        <div id="module-section" class="module-section">
+          <div class="module-actions">
+            <button onclick="selectAllModules(true)">Select All</button>
+            <button onclick="selectAllModules(false)">Deselect All</button>
+          </div>
+          <div class="checkbox-grid" id="module-list"></div>
+        </div>
+      </div>
+
+      <!-- Generate Button -->
+      <div class="section">
+        <button class="btn-primary" onclick="generateExclusions()" id="generate-btn">Generate Exclusions</button>
+      </div>
+
+      <!-- Results -->
+      <div id="results" class="results-section">
+        <div class="section-label">Results</div>
+        <div class="results-count" id="results-count"></div>
+        <div class="results-actions">
+          <button onclick="copyToClipboard()" id="copy-btn">&#128203; Copy to Clipboard</button>
+          <button onclick="downloadCSV()">&#128196; Download CSV</button>
+          <button onclick="downloadTXT()">&#128196; Download TXT</button>
+        </div>
+        <div class="results-display" id="results-display"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+// ============================================================
+// State
+// ============================================================
+let taniumData = null; // { baseFolders: [], baseProcesses: [], modules: [{name, exclusions:[]}] }
+let generatedExclusions = []; // flat list for export
+
+// Default Tanium Client paths per OS key
+const DEFAULT_PATHS = {
+  win64: 'C:\\Program Files (x86)\\Tanium\\TaniumClient',
+  win32: 'C:\\Program Files\\Tanium\\TaniumClient',
+  macos: '/Library/Tanium/TaniumClient',
+  linux: '/opt/Tanium/TaniumClient',
+  solaris: '/opt/Tanium/TaniumClient',
+  aix: '/opt/Tanium/TaniumClient'
+};
+
+// Map our OS keys to patterns that match the source data's "Endpoint OS" column
+const OS_MATCHERS = {
+  win64: os => /windows/i.test(os) && !/x86/i.test(os),
+  win32: os => /windows/i.test(os) && !/x64/i.test(os),
+  macos: os => /macos|mac os/i.test(os),
+  linux: os => /linux/i.test(os),
+  solaris: os => /solaris/i.test(os),
+  aix: os => /aix/i.test(os)
+};
+
+// ============================================================
+// Data Loading
+// ============================================================
+const API_URL = 'https://help-be.tanium.com/api/bundle/ug_client_cloud/page/client/security_exclusions.html';
+const CACHE_KEY = 'tanium_exclusions_cache';
+const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
+
+const CORS_PROXIES = [
+  url => 'https://api.codetabs.com/v1/proxy/?quest=' + encodeURIComponent(url),
+  url => 'https://corsproxy.io/?' + encodeURIComponent(url),
+  url => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url)
+];
+
+async function fetchWithProxy(url) {
+  for (const proxyFn of CORS_PROXIES) {
+    try {
+      const proxyUrl = proxyFn(url);
+      const resp = await fetch(proxyUrl);
+      if (!resp.ok) continue;
+      return await resp.json();
+    } catch (e) {
+      continue;
+    }
+  }
+  throw new Error('All CORS proxies failed');
+}
+
+function getCachedData() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const cached = JSON.parse(raw);
+    if (Date.now() - cached.timestamp > CACHE_TTL) {
+      localStorage.removeItem(CACHE_KEY);
+      return null;
+    }
+    return cached.data;
+  } catch { return null; }
+}
+
+function setCachedData(data) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), data }));
+  } catch { /* quota exceeded, ignore */ }
+}
+
+// ============================================================
+// Parsing
+// ============================================================
+function parseExclusionTable(table) {
+  const rows = table.querySelectorAll('tbody tr');
+  const exclusions = [];
+  let currentOS = '';
+
+  rows.forEach(row => {
+    const cells = Array.from(row.querySelectorAll('td'));
+    let os, notes, type, exclusion;
+
+    if (cells.length >= 4) {
+      os = cells[0].textContent.trim();
+      notes = cells[1].textContent.trim();
+      type = cells[2].textContent.trim();
+      exclusion = cells[3].textContent.trim();
+      if (os) currentOS = os;
+      else os = currentOS;
+    } else if (cells.length === 3) {
+      os = currentOS;
+      notes = cells[0].textContent.trim();
+      type = cells[1].textContent.trim();
+      exclusion = cells[2].textContent.trim();
+    } else {
+      return; // skip malformed rows
+    }
+
+    if (exclusion && type) {
+      exclusions.push({ os, notes, type, exclusion });
+    }
+  });
+
+  return exclusions;
+}
+
+function parseTopicHTML(html) {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+
+  const allTables = Array.from(doc.querySelectorAll('table'));
+  const allH3 = Array.from(doc.querySelectorAll('h3'));
+
+  // Map tables to their associated sections using document order
+  const elements = [
+    ...allH3.map(el => ({ type: 'h3', text: el.textContent.trim(), el })),
+    ...allTables.map((el, i) => ({ type: 'table', index: i, el }))
+  ];
+  elements.sort((a, b) => {
+    const pos = a.el.compareDocumentPosition(b.el);
+    return pos & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1;
+  });
+
+  // Tables before the first h3 are base tables
+  const baseTables = [];
+  const moduleMap = {};
+  let currentModule = null;
+  const moduleOrder = [];
+
+  // Skip non-module h3s
+  const skipH3 = new Set([
+    'Tanium Client folders', 'Tanium Client system processes',
+    'Tanium binary file signers', 'Solution-specific exclusions',
+    'Manage Consent Preferences', 'Cookie List'
+  ]);
+
+  elements.forEach(e => {
+    if (e.type === 'h3') {
+      if (skipH3.has(e.text) || e.text.includes('Register') || e.text.includes('Security exclusions for Tanium')) {
+        currentModule = null;
+      } else {
+        currentModule = e.text;
+        if (!moduleMap[currentModule]) {
+          moduleMap[currentModule] = { name: currentModule, exclusions: [], noExclusions: false };
+          moduleOrder.push(currentModule);
+        }
+      }
+    } else if (e.type === 'table') {
+      const headers = Array.from(e.el.querySelectorAll('thead th')).map(th => th.textContent.trim());
+      // Only parse exclusion tables (4-column with Exclusion Type)
+      if (!headers.includes('Exclusion Type') && !headers.includes('Process')) return;
+
+      if (currentModule === null) {
+        baseTables.push({ index: e.index, table: e.el });
+      } else if (moduleMap[currentModule]) {
+        const exclusions = parseExclusionTable(e.el);
+        moduleMap[currentModule].exclusions.push(...exclusions);
+      }
+    }
+  });
+
+  // Parse base tables
+  const baseFolders = baseTables[0] ? parseExclusionTable(baseTables[0].table) : [];
+  const baseProcesses = baseTables[1] ? parseExclusionTable(baseTables[1].table) : [];
+
+  // Check for modules with no exclusions (walk DOM to find "No additional security exclusions" text)
+  allH3.forEach(h3 => {
+    const name = h3.textContent.trim();
+    if (skipH3.has(name) || !moduleMap[name]) return;
+    // If module has no exclusions from tables, check text
+    if (moduleMap[name].exclusions.length === 0) {
+      let sib = h3.nextElementSibling;
+      while (sib && sib.tagName !== 'H3' && sib.tagName !== 'H2') {
+        if (sib.textContent.includes('No additional security exclusions')) {
+          moduleMap[name].noExclusions = true;
+          break;
+        }
+        sib = sib.nextElementSibling;
+      }
+    }
+  });
+
+  // Modules always included (not shown in pick list)
+  const ALWAYS_INCLUDED = new Set([
+    'Client Management', 'Direct Connect', 'End-User Notifications', 'Integrations Gallery'
+  ]);
+
+  const alwaysModules = moduleOrder
+    .map(name => moduleMap[name])
+    .filter(m => m.exclusions.length > 0 && ALWAYS_INCLUDED.has(m.name));
+
+  // Selectable modules (shown in pick list)
+  const selectableModules = moduleOrder
+    .map(name => moduleMap[name])
+    .filter(m => m.exclusions.length > 0 && !ALWAYS_INCLUDED.has(m.name));
+
+  return { baseFolders, baseProcesses, alwaysModules, modules: selectableModules };
+}
+
+// ============================================================
+// UI Helpers
+// ============================================================
+function toggleCustomPath() {
+  const isCustom = document.querySelector('input[name="clientDir"][value="custom"]').checked;
+  document.getElementById('custom-path').classList.toggle('visible', isCustom);
+}
+
+function toggleMode() {
+  const isFolderOnly = document.querySelector('input[name="mode"][value="folder"]').checked;
+  document.getElementById('module-section').classList.toggle('disabled', isFolderOnly);
+}
+
+function selectAllModules(checked) {
+  document.querySelectorAll('#module-list input[type="checkbox"]').forEach(cb => { cb.checked = checked; });
+  updateModuleCount();
+}
+
+function updateModuleCount() {
+  const checked = document.querySelectorAll('#module-list input[type="checkbox"]:checked').length;
+  const total = document.querySelectorAll('#module-list input[type="checkbox"]').length;
+  document.getElementById('module-count-badge').textContent = checked + '/' + total + ' selected';
+}
+
+function buildModuleList(modules) {
+  const container = document.getElementById('module-list');
+  container.innerHTML = '';
+  modules.forEach(m => {
+    const label = document.createElement('label');
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    cb.name = 'module';
+    cb.value = m.name;
+    cb.addEventListener('change', updateModuleCount);
+    label.appendChild(cb);
+    label.appendChild(document.createTextNode(' ' + m.name));
+    container.appendChild(label);
+  });
+  updateModuleCount();
+}
+
+// ============================================================
+// Exclusion Generation
+// ============================================================
+function getSelectedOS() {
+  return Array.from(document.querySelectorAll('input[name="os"]:checked')).map(cb => cb.value);
+}
+
+function getClientPath(osKey) {
+  const isCustom = document.querySelector('input[name="clientDir"][value="custom"]').checked;
+  if (isCustom) {
+    return document.getElementById('custom-path-value').value.trim() || DEFAULT_PATHS[osKey];
+  }
+  return DEFAULT_PATHS[osKey];
+}
+
+function resolveExclusionPath(exclusion, osKey) {
+  const clientPath = getClientPath(osKey);
+  return exclusion.replace(/<Tanium Client>/g, clientPath);
+}
+
+function matchesOS(rowOS, osKey) {
+  return OS_MATCHERS[osKey](rowOS);
+}
+
+function generateExclusions() {
+  const selectedOS = getSelectedOS();
+  if (selectedOS.length === 0) {
+    alert('Please select at least one operating system.');
+    return;
+  }
+
+  const isFolderOnly = document.querySelector('input[name="mode"][value="folder"]').checked;
+  const selectedModules = new Set(
+    Array.from(document.querySelectorAll('#module-list input[type="checkbox"]:checked')).map(cb => cb.value)
+  );
+
+  const results = []; // {source, os, osKey, type, exclusion, resolved}
+
+  selectedOS.forEach(osKey => {
+    if (isFolderOnly) {
+      // Only base folder exclusions
+      taniumData.baseFolders.forEach(exc => {
+        if (matchesOS(exc.os, osKey)) {
+          results.push({
+            source: 'Tanium Client Folders',
+            os: exc.os,
+            osKey,
+            type: exc.type,
+            exclusion: resolveExclusionPath(exc.exclusion, osKey)
+          });
+        }
+      });
+    } else {
+      // Base folders
+      taniumData.baseFolders.forEach(exc => {
+        if (matchesOS(exc.os, osKey)) {
+          results.push({
+            source: 'Tanium Client Folders',
+            os: exc.os,
+            osKey,
+            type: exc.type,
+            exclusion: resolveExclusionPath(exc.exclusion, osKey)
+          });
+        }
+      });
+
+      // Base processes
+      taniumData.baseProcesses.forEach(exc => {
+        if (matchesOS(exc.os, osKey)) {
+          results.push({
+            source: 'Tanium Client Processes',
+            os: exc.os,
+            osKey,
+            type: exc.type,
+            exclusion: resolveExclusionPath(exc.exclusion, osKey)
+          });
+        }
+      });
+
+      // Always-included module exclusions
+      taniumData.alwaysModules.forEach(mod => {
+        mod.exclusions.forEach(exc => {
+          if (matchesOS(exc.os, osKey)) {
+            results.push({
+              source: mod.name,
+              os: exc.os,
+              osKey,
+              type: exc.type,
+              exclusion: resolveExclusionPath(exc.exclusion, osKey)
+            });
+          }
+        });
+      });
+
+      // User-selected module exclusions
+      taniumData.modules.forEach(mod => {
+        if (!selectedModules.has(mod.name)) return;
+        mod.exclusions.forEach(exc => {
+          if (matchesOS(exc.os, osKey)) {
+            results.push({
+              source: mod.name,
+              os: exc.os,
+              osKey,
+              type: exc.type,
+              exclusion: resolveExclusionPath(exc.exclusion, osKey)
+            });
+          }
+        });
+      });
+    }
+  });
+
+  // Deduplicate by exclusion path + osKey
+  const seen = new Set();
+  generatedExclusions = results.filter(r => {
+    const key = r.osKey + '|' + r.exclusion;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  renderResults();
+}
+
+// ============================================================
+// Results Rendering
+// ============================================================
+function getOSLabel(osKey) {
+  const labels = { win64: 'Windows (64-bit)', win32: 'Windows (32-bit)', macos: 'macOS', linux: 'Linux', solaris: 'Solaris', aix: 'AIX' };
+  return labels[osKey] || osKey;
+}
+
+function renderResults() {
+  const container = document.getElementById('results-display');
+  const section = document.getElementById('results');
+  section.classList.add('visible');
+
+  if (generatedExclusions.length === 0) {
+    container.innerHTML = '<span style="color:var(--text-muted)">No exclusions found for the selected options.</span>';
+    document.getElementById('results-count').textContent = '0 exclusions';
+    return;
+  }
+
+  document.getElementById('results-count').textContent = generatedExclusions.length + ' exclusion(s)';
+
+  // Group by OS, flat deduplicated list within each OS
+  const grouped = {};
+  generatedExclusions.forEach(r => {
+    const osLabel = getOSLabel(r.osKey);
+    if (!grouped[osLabel]) grouped[osLabel] = new Set();
+    grouped[osLabel].add(r.exclusion);
+  });
+
+  let html = '';
+  for (const [osLabel, paths] of Object.entries(grouped)) {
+    html += '<div class="group-header">== ' + escapeHTML(osLabel) + ' ==</div>';
+    for (const path of paths) {
+      html += '<div class="exclusion-line">' + escapeHTML(path) + '</div>';
+    }
+    html += '\n';
+  }
+
+  container.innerHTML = html;
+}
+
+function escapeHTML(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ============================================================
+// Export
+// ============================================================
+function buildGroupedText() {
+  const grouped = {};
+  generatedExclusions.forEach(r => {
+    const osLabel = getOSLabel(r.osKey);
+    if (!grouped[osLabel]) grouped[osLabel] = new Set();
+    grouped[osLabel].add(r.exclusion);
+  });
+  const sections = [];
+  for (const [osLabel, paths] of Object.entries(grouped)) {
+    sections.push('== ' + osLabel + ' ==\n' + Array.from(paths).join('\n'));
+  }
+  return sections.join('\n\n');
+}
+
+function copyToClipboard() {
+  const text = buildGroupedText();
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.classList.add('copied');
+    btn.innerHTML = '&#10003; Copied!';
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = '&#128203; Copy to Clipboard';
+    }, 2000);
+  });
+}
+
+function downloadCSV() {
+  const lines = ['Endpoint OS,Exclusion Type,Exclusion'];
+  const grouped = {};
+  generatedExclusions.forEach(r => {
+    const osLabel = getOSLabel(r.osKey);
+    if (!grouped[osLabel]) grouped[osLabel] = [];
+    const key = osLabel + '|' + r.exclusion;
+    if (!grouped[osLabel].find(x => x.exclusion === r.exclusion)) {
+      grouped[osLabel].push(r);
+    }
+  });
+  const allRows = [];
+  for (const [osLabel, items] of Object.entries(grouped)) {
+    items.forEach(r => { allRows.push({ os: osLabel, type: r.type, exclusion: r.exclusion }); });
+  }
+  allRows.sort((a, b) => a.os.localeCompare(b.os) || a.type.localeCompare(b.type));
+  allRows.forEach(r => {
+    lines.push([r.os, r.type, r.exclusion].map(csvEscape).join(','));
+  });
+  downloadFile(lines.join('\n'), 'tanium_exclusions.csv', 'text/csv');
+}
+
+function downloadTXT() {
+  const text = buildGroupedText();
+  downloadFile(text, 'tanium_exclusions.txt', 'text/plain');
+}
+
+function csvEscape(val) {
+  if (/[,"\n]/.test(val)) {
+    return '"' + val.replace(/"/g, '""') + '"';
+  }
+  return val;
+}
+
+function downloadFile(content, filename, mime) {
+  const blob = new Blob([content], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ============================================================
+// Init
+// ============================================================
+async function loadData() {
+  document.getElementById('loading').classList.remove('hidden');
+  document.getElementById('error').classList.add('hidden');
+  document.getElementById('app').classList.add('hidden');
+
+  try {
+    // Try cache first
+    let data = getCachedData();
+    if (!data) {
+      const json = await fetchWithProxy(API_URL);
+      const topicHTML = json.topic_html;
+      if (!topicHTML) throw new Error('No topic_html in response');
+      data = parseTopicHTML(topicHTML);
+      setCachedData(data);
+    }
+
+    // Ensure alwaysModules exists (handles old cache format)
+    if (!data.alwaysModules) {
+      localStorage.removeItem(CACHE_KEY);
+      const json = await fetchWithProxy(API_URL);
+      const topicHTML = json.topic_html;
+      if (!topicHTML) throw new Error('No topic_html in response');
+      data = parseTopicHTML(topicHTML);
+      setCachedData(data);
+    }
+
+    taniumData = data;
+    buildModuleList(data.modules);
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+  } catch (err) {
+    console.error('Failed to load data:', err);
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('error').classList.remove('hidden');
+  }
+}
+
+loadData();
+</script>
+</body>
+</html>
